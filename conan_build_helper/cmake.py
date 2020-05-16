@@ -64,7 +64,7 @@ class CMakePackage(ConanFile, RequireScm):
     def _is_tests_enabled(self):
       return self._environ_option("ENABLE_TESTS", default = 'true')
 
-    def add_cmake_option(var_name, value):
+    def add_cmake_option(self, cmake, var_name, value):
         value_str = "{}".format(value)
         var_value = "ON" if bool(strtobool(value_str.lower())) else "OFF"
         self.output.info('added cmake definition %s = %s' % (var_name, var_value))
