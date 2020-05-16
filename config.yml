@@ -1,0 +1,19 @@
+packages:
+  - conan_build_helper
+
+versions:
+ - 0.0.1
+
+settings:
+  build_type:
+    - Release
+
+channel:
+  user: USERNAME
+  channel: testing
+
+remote:
+  name: USERNAME
+  url: "https://api.bintray.com/conan/USERNAME/conan-packages"
+  user: USERNAME
+  password: USERNAME_bintray_key
