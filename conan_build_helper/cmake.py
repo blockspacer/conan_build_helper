@@ -79,7 +79,7 @@ class CMakePackage(ConanFile, RequireScm):
 
     def build(self):
         cmake = CMake(self, parallel=self._parallel_build())
-        cmake.configure(defs={**self._cmake_defs_from_options(), **self._custom_cmake_defs}, source_folder=self._repository_path)
+        cmake.configure(defs={**self._cmake_defs_from_options(), **self._custom_cmake_defs}, source_folder=".")
         cmake.build()
         cmake.install()
 
