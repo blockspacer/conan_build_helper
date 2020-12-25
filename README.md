@@ -29,4 +29,7 @@ CONAN_LOGGING_LEVEL=10 \
 GIT_SSL_NO_VERIFY=true \
     cmake -E time \
       conan create . conan/stable
+
+# clean build cache
+conan remove "*" --build --force
 ```

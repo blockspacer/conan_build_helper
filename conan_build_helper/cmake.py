@@ -62,7 +62,9 @@ class CMakePackage(ConanFile, RequireScm):
       return bool(strtobool(env_val))
 
     def _is_tests_enabled(self):
-      return self._environ_option("ENABLE_TESTS", default = 'true')
+      # usually we do not want to build tests cause thay take a lot of space
+      # TODO: auto run tests, if tests enabled
+      return self._environ_option("ENABLE_TESTS", default = 'false')
 
     def add_cmake_option(self, cmake, var_name, value):
         value_str = "{}".format(value)
@@ -77,6 +79,11 @@ class CMakePackage(ConanFile, RequireScm):
     def _parallel_build(self):
         return os.environ.get('CONAN_' + self.name.upper() + '_SINGLE_THREAD_BUILD') is None
 
+    # Looks like after `conan create`
+    # ~/.conan/data/*/master/conan/stable/build
+    # takes a lot of space even without --keep-build (bug???)
+    # TODO: Migrate to CONAN_V2_MODE github.com/conan-io/conan/issues/3084
+    # or clean build cache manually using `conan remove "*" --build --force`
     def build(self):
         cmake = CMake(self, parallel=self._parallel_build())
         cmake.configure(defs={**self._cmake_defs_from_options(), **self._custom_cmake_defs}, source_folder=".")
@@ -89,6 +96,20 @@ class CMakePackage(ConanFile, RequireScm):
         self.copy('*.so', dst='lib', keep_path=False)
         self.copy('*.lib', dst='lib', keep_path=False)
         self.copy('*.dll', dst='lib', keep_path=False)
+
+        # Make sure we do not package .git
+        tools.rmdir(os.path.join(self.package_folder, '.git'))
+        tools.rmdir(os.path.join(self.build_folder, '.git'))
+
+        # We may need to run tests during build,
+        # but do not package tests ever
+        tools.rmdir(os.path.join(self.package_folder, 'tests'))
+        tools.rmdir(os.path.join(self.package_folder, 'lib', 'tests'))
+        tools.rmdir(os.path.join(self.build_folder, 'tests'))
+        tools.rmdir(os.path.join(self.build_folder, 'lib', 'tests'))
+
+        # Remove build files
+        tools.rmdir(os.path.join(self.package_folder, 'lib', 'pkgconfig'))
 
     def package_info(self):
         self.output.info("Collecting package libs...")
