@@ -66,6 +66,19 @@ class CMakePackage(ConanFile, RequireScm):
       # TODO: auto run tests, if tests enabled
       return self._environ_option("ENABLE_TESTS", default = 'false')
 
+    # Use to ensure that you do not package
+    # credentials, certs, '.git', tests, etc.
+    def rmdir_if_packaged(self, dir_path):
+        # Make sure we do not package dir_path
+        tools.rmdir(os.path.join(self.package_folder, dir_path))
+        tools.rmdir(os.path.join(self.build_folder, dir_path))
+
+    def copy_conanfile_for_editable_package(self, dst_path = "."):
+        # Local build
+        # see https://docs.conan.io/en/latest/developing_packages/editable_packages.html
+        if not self.in_local_cache:
+            self.copy("conanfile.py", dst=dst_path, keep_path=False)
+
     def add_cmake_option(self, cmake, var_name, value):
         value_str = "{}".format(value)
         var_value = "ON" if bool(strtobool(value_str.lower())) else "OFF"
